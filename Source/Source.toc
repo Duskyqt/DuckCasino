@@ -1,0 +1,11 @@
+## Set the addon name to parameter the output addon's identity
+AddonName=DuckCasino
+
+## Set wether you want the addon to be standalone
+Standalone=true
+
+## This file will be used to add new files to be wrapped. 
+## The Wrapper will always find every files that are listed and add these one by one, like a normal .toc would do.
+
+## Core Files
+Core.ts
