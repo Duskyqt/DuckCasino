@@ -138,25 +138,75 @@ function __TS__ArraySplice(list, ...)
     return out
 end
 
+function __TS__StringSplit(source, separator, limit)
+    if limit == nil then
+        limit = 4294967295
+    end
+    if limit == 0 then
+        return {}
+    end
+    local out = {}
+    local index = 0
+    local count = 0
+    if (separator == nil) or (separator == "") then
+        while (index < (#source - 1)) and (count < limit) do
+            out[count + 1] = string.sub(source, index + 1, index + 1)
+            count = count + 1
+            index = index + 1
+        end
+    else
+        local separatorLength = #separator
+        local nextIndex = (string.find(source, separator, nil, true) or 0) - 1
+        while (nextIndex >= 0) and (count < limit) do
+            out[count + 1] = string.sub(source, index + 1, nextIndex)
+            count = count + 1
+            index = nextIndex + separatorLength
+            nextIndex = (string.find(source, separator, index + 1, true) or 0) - 1
+        end
+    end
+    if count < limit then
+        out[count + 1] = string.sub(source, index + 1)
+    end
+    return out
+end
+
 local ____exports = {}
 local Chat
 ____exports.Core = {}
 local Core = ____exports.Core
 do
-    local Channel = "RAID"
+    if DuckCasinoSettings then
+        DuckCasinoSettings = {MainInterface = {X = 0, Y = 0}}
+    end
+    local Channel = "SAY"
     local MainFrame = CreateFrame("Frame")
+    local Throttle = 1
+    local NextCheck = 0
     MainFrame:SetScript(
         "OnUpdate",
         function()
-            if Core.ActiveGame ~= nil then
+            if (Core.ActiveGame ~= nil) and Core.ActiveGame.Active then
+                if NextCheck < GetTime() then
+                    print(
+                        Core.ActiveGame.Duration,
+                        GetTime()
+                    )
+                    print(
+                        "Time Left: ",
+                        Core.ActiveGame.Duration - GetTime()
+                    )
+                    NextCheck = GetTime() + Throttle
+                end
                 if (not Core.ActiveGame.LastCalled) and (Core.ActiveGame.LastCallTime < GetTime()) then
                     Core.ActiveGame.LastCalled = true
+                    print("LastCallSet")
                     ____exports.Chat:SendMessage(
                         ("Last Call to Roll! " .. tostring(Core.ActiveGame.LastCallTime)) .. " seconds left!",
                         Channel
                     )
                 end
                 if (not Core.ActiveGame.RollCalled) and (Core.ActiveGame.LastCallTime < GetTime()) then
+                    print("RollCallSet")
                     Core.ActiveGame.RollCalled = true
                     ____exports.Chat:SendMessage("Roll Now!!!", Channel)
                 end
@@ -168,15 +218,18 @@ ____exports.Game = __TS__Class()
 local Game = ____exports.Game
 Game.name = "Game"
 function Game.prototype.____constructor(self, payload)
+    self.Active = false
     self.Amount = 0
     self.Duration = 0
     self.LastCallTime = 0
     self.LastCalled = false
     self.RollCalled = false
     self.Participants = {}
+    self.Active = true
     self.Amount = payload.Amount
     self.Duration = GetTime() + payload.Duration
     self.LastCallTime = GetTime() + payload.LastCallTime
+    print("Making Game!", self.Amount, self.Duration, self.LastCallTime)
 end
 ____exports.CombatEvent = __TS__Class()
 local CombatEvent = ____exports.CombatEvent
@@ -272,8 +325,9 @@ Chat = ____exports.Chat
 do
     local ActiveGame = ____exports.Core.ActiveGame
     ____exports.Events.General(
-        "CHAT_MSG_CHANNEL",
-        function(____, Message, Author)
+        {"CHAT_MSG_CHANNEL", "CHAT_MSG_RAID", "CHAT_MSG_GUILD", "CHAT_MSG_PARTY", "CHAT_MSG_SAY"},
+        function(____, Event, Message, Author)
+            print(Event, Message, Author)
             if ActiveGame ~= nil then
                 local OptIn = ((string.find(Message, "1", nil, true) or 0) - 1) ~= -1
                 local OptOut = ((string.find(Message, "-1", nil, true) or 0) - 1) ~= -1
@@ -285,6 +339,23 @@ do
                     local Index = __TS__ArrayIndexOf(ActiveGame.Participants, Author)
                     if Index ~= -1 then
                         __TS__ArraySplice(ActiveGame.Participants, Index, 1)
+                    end
+                end
+            else
+                if Author == "Realducky-Area52" then
+                    local NewGameMessage = ((string.find(
+                        string.lower(Message),
+                        "newgame",
+                        nil,
+                        true
+                    ) or 0) - 1) ~= -1
+                    if NewGameMessage then
+                        local MessageSplit = __TS__StringSplit(Message, " ")
+                        local Amount = tonumber(MessageSplit[2]) or 1
+                        local Duration = tonumber(MessageSplit[3]) or 20
+                        local LastCall = tonumber(MessageSplit[4]) or 5
+                        print("adding game!", Amount, Duration, LastCall)
+                        ____exports.Core.ActiveGame = __TS__New(____exports.Game, {Amount = Amount, Duration = Duration, LastCallTime = LastCall})
                     end
                 end
             end
@@ -301,16 +372,16 @@ local Settings = ____exports.Settings
 do
     local InitSettings
     function InitSettings(self)
-        if _G.DuckCasinoSettings then
-            Settings.CasinoSettings = _G.DuckCasinoSettings
+        if DuckCasinoSettings then
+            Settings.CasinoSettings = DuckCasinoSettings
         end
     end
-    ____exports.Events.General(
-        "ADDON_LOADED",
-        function(____, addonName)
-            if addonName == "DuckCasino" then
-                InitSettings(nil)
-            end
+    local SettingsFrame = CreateFrame("Frame")
+    C_Timer.After(
+        2,
+        function()
+            print("init")
+            InitSettings(nil)
         end
     )
 end
@@ -401,6 +472,32 @@ do
         end
     )
     MainInterface.MainInterfaceFrame:Show()
+    MainInterface.MainButton = CreateFrame("Button")
+    MainInterface.MainButton:SetSize(10, 10)
+    MainInterface.MainButton:SetPoint("TOPLEFT", MainInterface.MainInterfaceFrame, "TOPLEFT", 0, 0)
+    MainInterface.MainButton:SetMovable(true)
+    MainInterface.MainButton:EnableMouse(true)
+    MainInterface.MainButton:SetClampedToScreen(true)
+    MainInterface.MainButton:SetFrameStrata("MEDIUM")
+    MainInterface.MainButton:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1, tile = true, tileSize = 1})
+    MainInterface.MainButton.SetBackground = function(color, borderColor)
+        MainInterface.MainButton:SetBackdropColor(color.R, color.G, color.G, color.A)
+        MainInterface.MainButton:SetBackdropBorderColor(borderColor.R, borderColor.G, borderColor.G, color.A)
+    end
+    MainInterface.MainButton.OnClick = function() return print("LOL") end
+    MainInterface.MainButton:SetScript(
+        "OnMouseUp",
+        function()
+            if MainInterface.MainButton.OnClick then
+                MainInterface.MainButton:OnClick()
+            else
+                print("Nothing Bound")
+            end
+        end
+    )
+    MainInterface.MainButton.SetBackground(____exports.Colors.Background, ____exports.Colors.Red)
+    MainInterface.MainButton:Show()
+    _G.MyInterfaceButton = MainInterface.MainButton
     _G.MyInterfaceFrame = MainInterface.MainInterfaceFrame
 end
 return ____exports

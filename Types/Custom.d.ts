@@ -15,3 +15,7 @@ declare interface ITextureConfig {
 declare function DoAtan2(this: void, x: number, y: number): number;
 /** Does a native Math.random lua call, this is different from the Typescript version of Math.Random as we can set min/max params */
 declare function DoMathRan(this: void, Min: number, Max: number): number;
+interface CasinoSettings {
+    MainInterface: { X: number, Y: number }
+}
+declare let DuckCasinoSettings: CasinoSettings;

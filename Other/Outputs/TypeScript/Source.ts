@@ -2,15 +2,27 @@
 
 export namespace Core {
     export let ActiveGame: Game | undefined;
-    const Channel = "RAID";
+    if (DuckCasinoSettings) {
+        DuckCasinoSettings = { MainInterface: { X: 0, Y: 0 } };
+    }
+    const Channel = "SAY";
     const MainFrame = CreateFrame("Frame");
+    const Throttle = 1;
+    let NextCheck = 0;
     MainFrame.SetScript("OnUpdate", () => {
-        if (ActiveGame != undefined) {
+        if (ActiveGame != undefined && ActiveGame.Active) {
+            if (NextCheck < GetTime()) {
+                print(ActiveGame.Duration, GetTime())
+                print("Time Left: ", ActiveGame.Duration - GetTime());
+                NextCheck = GetTime() + Throttle;
+            }
             if (!ActiveGame.LastCalled && ActiveGame.LastCallTime < GetTime()) {
                 ActiveGame.LastCalled = true;
+                print("LastCallSet");
                 Chat.SendMessage("Last Call to Roll! " + ActiveGame.LastCallTime + " seconds left!", Channel);
             }
             if (!ActiveGame.RollCalled && ActiveGame.LastCallTime < GetTime()) {
+                print("RollCallSet");
                 ActiveGame.RollCalled = true;
                 Chat.SendMessage("Roll Now!!!", Channel);
             }
@@ -30,6 +42,7 @@ interface IGame {
     Duration: number;
 }
 export class Game {
+    public Active = false;
     public Amount = 0;
     public Duration = 0;
     public LastCallTime = 0;
@@ -37,9 +50,11 @@ export class Game {
     public RollCalled = false;
     public Participants: string[] = [];
     constructor(payload: IGame) {
+        this.Active = true;
         this.Amount = payload.Amount;
         this.Duration = GetTime() + payload.Duration;
         this.LastCallTime = GetTime() + payload.LastCallTime;
+        print("Making Game!", this.Amount, this.Duration, this.LastCallTime)
     }
 }//Source/Processes/Events.ts//
 
@@ -131,7 +146,8 @@ export namespace Events {
 
 export namespace Chat {
     const ActiveGame = Core.ActiveGame;
-    Events.General("CHAT_MSG_CHANNEL", (Message: string, Author: string) => {
+    Events.General(["CHAT_MSG_CHANNEL", "CHAT_MSG_RAID", "CHAT_MSG_GUILD", "CHAT_MSG_PARTY", "CHAT_MSG_SAY"], (Event: string, Message: string, Author: string) => {
+        print(Event, Message, Author)
         if (ActiveGame != undefined) {
             const OptIn = Message.indexOf("1") != -1;
             const OptOut = Message.indexOf("-1") != -1;
@@ -145,6 +161,18 @@ export namespace Chat {
                     ActiveGame.Participants.splice(Index, 1);
                 }
             }
+        } else {
+            if (Author == "Realducky-Area52") {
+                const NewGameMessage = Message.toLowerCase().indexOf("newgame") != -1;
+                if (NewGameMessage) {
+                    const MessageSplit = Message.split(" ");
+                    const Amount = tonumber(MessageSplit[1]) || 1;
+                    const Duration = tonumber(MessageSplit[2]) || 20;
+                    const LastCall = tonumber(MessageSplit[3]) || 5;
+                    print("adding game!", Amount, Duration, LastCall)
+                    Core.ActiveGame = new Game({Amount: Amount, Duration: Duration, LastCallTime: LastCall })
+                }
+            }
         }
     });
     export function SendMessage(message: string, chatType: string) {
@@ -152,26 +180,26 @@ export namespace Chat {
         const Channel = chatType == "CHANNEL" && "1" || undefined;
         SendChatMessage(message, ChatType, undefined, Channel);
     }
-}//Source/Processes/Settings.ts//
+}
+//Source/Processes/Settings.ts//
 
 
 export namespace Settings {
     export let CasinoSettings: { MainInterface: { X: number, Y: number } };
-
-
-    Events.General("ADDON_LOADED", (addonName: string) => {
-        if (addonName == "DuckCasino") {
-            InitSettings();
-        }
+    const SettingsFrame = CreateFrame("Frame");
+    C_Timer.After(2, () => {
+        print("init");
+        InitSettings();
     });
 
 
     function InitSettings(): void {
-        if (_G.DuckCasinoSettings) {
-            CasinoSettings = _G.DuckCasinoSettings;
+        if (DuckCasinoSettings) {
+            CasinoSettings = DuckCasinoSettings;
         }
     }
-}//Source/Interface/Colors.ts//
+}
+//Source/Interface/Colors.ts//
 
 
 
@@ -276,9 +304,40 @@ export namespace MainInterface {
     MainInterfaceFrame.SetScript("OnMouseUp", () => {
         InterfaceSettings.X = MainInterfaceFrame.GetPoint()[3];
         InterfaceSettings.Y = MainInterfaceFrame.GetPoint()[4];
-        print(InterfaceSettings.X, InterfaceSettings.Y)
+        print(InterfaceSettings.X, InterfaceSettings.Y);
         MainInterfaceFrame.StopMovingOrSizing();
     });
     MainInterfaceFrame.Show();
+
+
+    export const MainButton: CreatedButton = CreateFrame("Button") as CreatedButton;
+    MainButton.SetSize(10, 10);
+    MainButton.SetPoint("TOPLEFT", MainInterfaceFrame, "TOPLEFT", 0, 0);
+    MainButton.SetMovable(true);
+    MainButton.EnableMouse(true);
+    MainButton.SetClampedToScreen(true);
+    MainButton.SetFrameStrata("MEDIUM");
+    MainButton.SetBackdrop({
+        bgFile: "Interface\\ChatFrame\\ChatFrameBackground",
+        edgeFile: "Interface\\ChatFrame\\ChatFrameBackground",
+        edgeSize: 1,
+        tile: true,
+        tileSize: 1
+    });
+    MainButton.SetBackground = (color: IColor, borderColor: IColor) => {
+        MainButton.SetBackdropColor(color.R, color.G, color.G, color.A);
+        MainButton.SetBackdropBorderColor(borderColor.R, borderColor.G, borderColor.G, color.A);
+    };
+    MainButton.OnClick = () => print("LOL");
+    MainButton.SetScript("OnMouseUp", () => {
+        if (MainButton.OnClick) {
+            MainButton.OnClick();
+        } else {
+            print("Nothing Bound");
+        }
+    })
+    MainButton.SetBackground(Colors.Background, Colors.Red);
+    MainButton.Show();
+    _G.MyInterfaceButton = MainButton;
     _G.MyInterfaceFrame = MainInterfaceFrame;
-};
+}

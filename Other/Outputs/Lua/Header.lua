@@ -39,7 +39,7 @@ local Environment = {
 	unpack = unpack,
 	strsplit = strsplit,
 	xpcall = xpcall,
-
+    DuckCasinoSettings = DuckCasinoSettings,
 	-- Flight Masters
 	CloseTaxiMap = CloseTaxiMap,
 	NumTaxiNodes = NumTaxiNodes,

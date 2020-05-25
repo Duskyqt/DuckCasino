@@ -5,18 +5,16 @@ import { Events } from "./Events";
 
 export namespace Settings {
     export let CasinoSettings: { MainInterface: { X: number, Y: number } };
-
-
-    Events.General("ADDON_LOADED", (addonName: string) => {
-        if (addonName == "DuckCasino") {
-            InitSettings();
-        }
+    const SettingsFrame = CreateFrame("Frame");
+    C_Timer.After(2, () => {
+        print("init");
+        InitSettings();
     });
 
 
     function InitSettings(): void {
-        if (_G.DuckCasinoSettings) {
-            CasinoSettings = _G.DuckCasinoSettings;
+        if (DuckCasinoSettings) {
+            CasinoSettings = DuckCasinoSettings;
         }
     }
 }
