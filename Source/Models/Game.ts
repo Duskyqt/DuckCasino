@@ -9,6 +9,7 @@ export class Game {
     public Duration = 0;
     public LastCallTime = 0;
     public LastCalled = false;
+    public RollCalled = false;
     public Participants: string[] = [];
     constructor(payload: IGame) {
         this.Amount = payload.Amount;

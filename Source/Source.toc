@@ -4,8 +4,21 @@ AddonName=DuckCasino
 ## Set wether you want the addon to be standalone
 Standalone=true
 
+## Are we using Wows Saved Variables
+SavedVariables=true
+SavedVariablesName=DuckCasinoSettings
+
 ## This file will be used to add new files to be wrapped. 
 ## The Wrapper will always find every files that are listed and add these one by one, like a normal .toc would do.
 
-## Core Files
 Core.ts
+
+Models/Game.ts
+
+Processes/Events.ts
+Processes/Chat.ts
+Processes/Settings.ts
+
+Interface/Colors.ts
+Interface/MainInterface.ts
+

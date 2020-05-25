@@ -1,4 +1,4 @@
-
+// Content //
 export class CombatEvent {
     public TimeStamp: number;
     public Type: string;

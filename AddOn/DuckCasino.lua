@@ -1,3 +1,329 @@
+local AddonName = "DuckCasino"
+
+
+
+-- Other/Outputs/Lua/Header.lua --
+-- This header is used to feed the inner scope of the addon with links to the global environment.
+-- If you need additional API from wow you need to start by adding it here and then you can update the types to reflect this change.
+
+local function Load()
+local Environment = {
+	AddonName = AddonName,
+	-- Lua API
+	_G = _G,
+	bit = bit,
+	cos = math.cos,
+	debugstack = debugstack,
+	error = error,
+	geterrorhandler = geterrorhandler,
+	getmetatable = getmetatable,
+	ipairs = ipairs,
+	loadstring = loadstring,
+	math = math,
+	DoAtan2 = function (...) return math.atan2(...) end, -- Atan2 is wrongly transpiled so we use this detour
+	next = next,
+	pairs = pairs,
+	pcall = pcall,
+	-- If you lost track of where the prints come from or another dev forgot to remove one switch print with debugstack
+	-- print = function (...) return print(debugstack(print("|cffFFFFFF[|cffff8000" + AddonName + "|cffFFFFFF] |r", ...))) end,
+	print = function (...) return print("|cffFFFFFF[|cffff8000" .. AddonName .. "|cffFFFFFF] |r", ...) end,
+	rad = math.rad,
+    require = require,
+    rawget = rawget,
+	rawset = rawset,
+	select = select,
+	setmetatable = setmetatable,
+	sin = math.sin,
+	string = string,
+	table = table,
+	tinsert = table.insert,
+	tonumber = tonumber,
+	tostring = tostring,
+	tremove = table.remove,
+	type = type,
+	unpack = unpack,
+	strsplit = strsplit,
+	xpcall = xpcall,
+
+	-- Flight Masters
+	CloseTaxiMap = CloseTaxiMap,
+	NumTaxiNodes = NumTaxiNodes,
+	TaxiNodeCost = TaxiNodeCost,
+	TakeTaxiNode = TakeTaxiNode,
+	TaxiNodeGetType = TaxiNodeGetType,
+	TaxiNodeName = TaxiNodeName,
+	TaxiNodePosition = TaxiNodePosition,
+	UnitOnTaxi = UnitOnTaxi,
+
+	-- Wow API
+	CameraOrSelectOrMoveStart = CameraOrSelectOrMoveStart,
+	CameraOrSelectOrMoveStop = CameraOrSelectOrMoveStop,
+	CancelShapeshiftForm = CancelShapeshiftForm,
+	CloseLoot = CloseLoot,
+	CreateVector2D = CreateVector2D,
+	GetAddOnMemoryUsage = GetAddOnMemoryUsage,
+	GetInventoryItemDurability = GetInventoryItemDurability,
+	GetNumGroupMembers = GetNumGroupMembers,
+	GetNumLootItems = GetNumLootItems,
+	GetNumSpellTabs = GetNumSpellTabs,
+	GetSpellTabInfo = GetSpellTabInfo,
+	GetSpellBookItemName = GetSpellBookItemName,
+	IsInGroup = IsInGroup,
+	IsInRaid = IsInRaid,
+	LootSlot = LootSlot,
+    GetProfessionInfos = GetProfessionInfos,
+    GetLatestThreeSenders = GetLatestThreeSenders,
+    GetInboxNumItems = GetInboxNumItems,
+    GetProfessions = GetProfessions,
+	LootSlotHasItem = LootSlotHasItem,
+	PetAssistMode = PetAssistMode,
+	PetPassiveMode = PetPassiveMode,
+	SlashCmdList = SlashCmdList,
+	SpellIsTargeting = SpellIsTargeting,
+	SpellStopCasting = SpellStopCasting,
+	SpellStopTargeting = SpellStopTargeting,
+	UnitInVehicle = UnitInVehicle,
+	UnitIsAFK = UnitIsAFK,
+	UpdateAddOnMemoryUsage = UpdateAddOnMemoryUsage,
+	WorldMapFrame = WorldMapFrame,
+    MailFrame = MailFrame,
+    
+    RealMobHealth = RealMobHealth,
+	-- Units API
+	GetRaidRosterInfo = GetRaidRosterInfo,
+	GetRaidTargetIndex = GetRaidTargetIndex,
+	GetUnitSpeed = GetUnitSpeed,
+	UnitAffectingCombat = UnitAffectingCombat,
+	UnitCanAttack = UnitCanAttack,
+	UnitCastingInfo = UnitCastingInfo,
+	UnitChannelInfo = UnitChannelInfo,
+	UnitClass = UnitClass,
+	UnitClassification = UnitClassification,
+	UnitCreatureType = UnitCreatureType,
+	UnitDetailedThreatSituation = UnitDetailedThreatSituation,
+	UnitExists = UnitExists,
+	UnitGetIncomingHeals = UnitGetIncomingHeals,
+	UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs,
+	UnitGroupRolesAssigned = UnitGroupRolesAssigned,
+	UnitGUID = UnitGUID,
+	UnitHealth = UnitHealth,
+	UnitHealthMax = UnitHealthMax,
+	UnitInRaid = UnitInRaid,
+	UnitInParty = UnitInParty,
+	UnitIsDead = UnitIsDead,
+	UnitIsDeadOrGhost = UnitIsDeadOrGhost,
+	UnitIsGhost = UnitIsGhost,
+	UnitIsPlayer = UnitIsPlayer,
+	UnitIsPVP = UnitIsPVP,
+	UnitIsUnit = UnitIsUnit,
+	UnitIsVisible = UnitIsVisible,
+	UnitIsTapDenied = UnitIsTapDenied,
+	UnitLevel = UnitLevel,
+	UnitName = UnitName,
+	UnitPlayerOrPetInParty = UnitPlayerOrPetInParty,
+	UnitPlayerOrPetInRaid = UnitPlayerOrPetInRaid,
+	UnitThreatSituation = UnitThreatSituation,
+	
+	-- Buffs API
+	UnitBuff = UnitBuff,
+	UnitDebuff = UnitDebuff,
+	UnitAura = UnitAura,
+
+	-- Player API
+	GetHaste = GetHaste,
+	GetInstanceInfo = GetInstanceInfo,
+	GetPVPDesired = GetPVPDesired,
+	GetSpecialization = GetSpecialization,
+	GetSpecializationInfo = GetSpecializationInfo,
+	GetUnitMaxHealthModifier = GetUnitMaxHealthModifier,
+	HasFullControl = HasFullControl,
+	IsAutoRepeatSpell = IsAutoRepeatSpell,
+	IsCurrentSpell = IsCurrentSpell,
+	IsFalling = IsFalling,
+	IsFlying = IsFlying,
+	IsInInstance = IsInInstance,
+	IsMounted = IsMounted,
+	IsPetActive = IsPetActive,
+	UnitAttackSpeed = UnitAttackSpeed,
+	UnitInBattleground = UnitInBattleground,
+	UnitIsWarModeDesired = UnitIsWarModeDesired,
+	UnitOnTaxi = UnitOnTaxi,
+	
+	-- PlayerPet API
+	DisableSpellAutocast = DisableSpellAutocast,
+	EnableSpellAutocast = EnableSpellAutocast,
+	GetPetActionInfo = GetPetActionInfo,
+	IsPetAttackActive = IsPetAttackActive,
+	PetAttack = PetAttack,
+
+	-- Power API
+	GetPowerRegen = GetPowerRegen,
+	GetRuneCooldown = GetRuneCooldown,
+	UnitPower = UnitPower,
+	UnitPowerMax = UnitPowerMax,
+	UnitStagger = UnitStagger,
+	
+	-- Spells API
+	GetSpellCharges = GetSpellCharges,
+	GetSpellCooldown = GetSpellCooldown,
+	GetSpellCount = GetSpellCount,
+	GetSpellDescription = GetSpellDescription,
+	GetSpellInfo = GetSpellInfo,
+	GetTotemInfo = GetTotemInfo,
+	GetTotemTimeLeft = GetTotemTimeLeft,
+	IsUsableSpell = IsUsableSpell,
+	IsPlayerSpell = IsPlayerSpell,
+	IsSpellInRange = IsSpellInRange,
+	IsSpellKnown = IsSpellKnown,
+
+	-- Stats API
+	CR_VERSATILITY_DAMAGE_DONE = CR_VERSATILITY_DAMAGE_DONE,
+	GetCombatRating = GetCombatRating,
+	GetCombatRatingBonus = GetCombatRatingBonus,
+	GetVersatilityBonus = GetVersatilityBonus,
+	GetMasteryEffect = GetMasteryEffect,
+	GetCritChance = GetCritChance,
+	GetHaste = GetHaste,
+	UnitAttackPower = UnitAttackPower,
+	UnitDamage = UnitDamage,
+	UnitSpellHaste = UnitSpellHaste,
+
+	-- Keybinds
+	AscendStop = AscendStop,
+	JumpOrAscendStart = JumpOrAscendStart,
+	JumpOrAscendStop = JumpOrAscendStop,
+	MoveBackwardStart = MoveBackwardStart,
+	MoveBackwardStop = MoveBackwardStop,
+	MoveForwardStart = MoveForwardStart,
+	MoveForwardStop = MoveForwardStop,
+	StrafeLeftStart = StrafeLeftStart,
+	StrafeLeftStop = StrafeLeftStop,
+	StrafeRightStart = StrafeRightStart,
+	StrafeRightStop = StrafeRightStop,
+	TurnLeftStart = TurnLeftStart,
+	TurnLeftStop = TurnLeftStop,
+	TurnRightStart = TurnRightStart,
+	TurnRightStop = TurnRightStop,
+	PitchUpStart = PitchUpStart,
+	PitchDownStart = PitchDownStart,
+	PitchDownStop = PitchDownStop,
+	PitchUpStop = PitchUpStop,
+	IsMouselooking = IsMouselooking,
+	IsShiftKeyDown = IsShiftKeyDown,
+	IsSwimming = IsSwimming,
+	IsControlKeyDown = IsControlKeyDown,
+	MouselookStart = MouselookStart,
+
+    -- General API
+    ClearTarget = ClearTarget,
+	CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo,
+	C_AzeriteEmpoweredItem = C_AzeriteEmpoweredItem,
+	C_ChatInfo = C_ChatInfo,	
+	C_Map = C_Map,
+    C_MountJournal = C_MountJournal,
+	C_Timer = C_Timer,
+	C_Item = C_Item,
+	Enum = Enum,
+	
+    Dismount = Dismount,
+	ItemLocation = ItemLocation,
+	GetAddOnMetadata = GetAddOnMetadata,
+	GetBuildInfo = GetBuildInfo,
+	GetCursorPosition = GetCursorPosition,
+	GetGossipOptions = GetGossipOptions,
+	GetNumGossipOptions = GetNumGossipOptions,
+	GetSkillLevel = GetSkillLevel,
+	GetSkillLineInfo = GetSkillLineInfo,
+	GetNumSkillLines = GetNumSkillLines,
+	SelectGossipOption = SelectGossipOption,
+    GetNumQuestLogEntries = GetNumQuestLogEntries,
+    GetQuestLogQuestText = GetQuestLogQuestText,
+    GetQuestIDFromLogIndex = GetQuestIDFromLogIndex,
+	GetLocale = GetLocale,
+	GetTime = GetTime,
+	GetNetStats = GetNetStats,
+	GetInventorySlotInfo = GetInventorySlotInfo,
+	GetWeaponEnchantInfo = GetWeaponEnchantInfo,
+    InterfaceOptions_AddCategory = InterfaceOptions_AddCategory,
+    IsIndoors = IsIndoors,
+    IsOutdoors = IsOutdoors,
+    PowerType = Enum.PowerType,
+	UnitIsWildBattlePet = UnitIsWildBattlePet,
+	AcceptProposal = AcceptProposal,
+	GetCVar = GetCVar,
+	SetCVar = SetCVar,
+	UIErrorsFrame = UIErrorsFrame,
+	mod = mod,
+    CanLootUnit = CanLootUnit,
+    ResetInstances = ResetInstances,
+    SendChatMessage = SendChatMessage,
+
+	-- Equipment API
+	ContainerIDToInventoryID = ContainerIDToInventoryID,
+	EquipCursorItem = EquipCursorItem,
+    EquipItemByName = EquipItemByName,
+	GetContainerItemInfo = GetContainerItemInfo,
+	GetContainerItemLink = GetContainerItemLink,
+	GetContainerFreeSlots = GetContainerFreeSlots,
+	GetContainerNumFreeSlots = GetContainerNumFreeSlots,
+	GetContainerNumSlots = GetContainerNumSlots,
+	GetInventoryItemCooldown = GetInventoryItemCooldown,
+	GetInventoryItemID = GetInventoryItemID,
+	GetItemCooldown = GetItemCooldown,
+	GetItemCount = GetItemCount,
+	GetItemInfo = GetItemInfo,
+	IsUsableInventory = IsUsableInventory,
+	NUM_BAG_SLOTS = NUM_BAG_SLOTS,
+	PickupContainerItem = PickupContainerItem,
+	PickupInventoryItem = PickupInventoryItem,
+    PickupMerchantItem = PickupMerchantItem,
+	PutItemInBackpack = PutItemInBackpack,
+	PutItemInBag = PutItemInBag,
+	UseContainerItem = UseContainerItem,
+
+	-- Talents API
+	LearnTalent = LearnTalent,
+	RemoveTalent = RemoveTalent,
+	GetTalentInfo = GetTalentInfo,
+	RAID_CLASS_COLORS = RAID_CLASS_COLORS,
+	ITEM_QUALITY_COLORS = ITEM_QUALITY_COLORS,
+
+	-- Pet Battles / Critters
+	BATTLE_PET_NAME_5 = BATTLE_PET_NAME_5,
+	PETTAME_NOTDEAD = PETTAME_NOTDEAD,
+	SPELL_FAILED_NO_PET = SPELL_FAILED_NO_PET,
+	ERR_ATTACK_DEAD = ERR_ATTACK_DEAD,
+	PETTAME_DEAD = PETTAME_DEAD,
+    -- Constants
+	SPELL_FAILED_NOT_BEHIND = SPELL_FAILED_NOT_BEHIND,
+	SPELL_FAILED_NO_MOUNTS_ALLOWED = SPELL_FAILED_NO_MOUNTS_ALLOWED,
+	MINIMAP_TRACKING_MAILBOX = MINIMAP_TRACKING_MAILBOX,
+	-- WoW UI API
+	CreateFrame = CreateFrame,
+	GameTooltip = GameTooltip,
+	CreateMacro = CreateMacro,
+	message = message,
+	UIParent = UIParent,
+	Enum = Enum,
+	WorldFrame = WorldFrame,
+	-- RealMobHealth
+	assert = assert,
+	GameTooltipStatusBar = GameTooltipStatusBar,
+	hooksecurefunc = hooksecurefunc,
+	IsInGuild = IsInGuild,
+	NamePlateDriverFrame = NamePlateDriverFrame,
+    TargetFrameHealthBar = TargetFrameHealthBar,
+    TargetFrameTextureFrame = TargetFrameTextureFrame,
+	TargetFrameManaBar = TargetFrameManaBar,
+	TextStatusBar_Initialize = TextStatusBar_Initialize,
+	TextStatusBar_OnValueChanged = TextStatusBar_OnValueChanged,
+	TextStatusBar_UpdateTextString = TextStatusBar_UpdateTextString,
+	TextStatusBar_UpdateTextStringWithValues = TextStatusBar_UpdateTextStringWithValues,
+}
+if setfenv == nil then return end
+setfenv(1, Environment)
+
+-- Other/Outputs/Lua/Source.lua --
 -- Lua Library inline imports
 function __TS__Class(self)
     local c = {prototype = {}}
@@ -404,3 +730,21 @@ do
     _G.MyInterfaceFrame = MainInterface.MainInterfaceFrame
 end
 return ____exports
+
+
+-- Other/Outputs/Lua/Footer.lua --
+-- This file will be the bottom of the addon file and the setfenv scope finishes here, after the end, is back to file scope
+
+end
+
+local function TryLoading()
+    C_Timer.After(1, function () 
+        if setfenv ~= nil then
+            Load()
+        else
+            TryLoading()
+        end
+    end)
+end
+
+TryLoading()

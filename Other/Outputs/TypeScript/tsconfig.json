@@ -6,7 +6,6 @@
       "strict": true,
       "types": [
         "../../../Types/Custom",
-        "../../../Types/LuaBox",
         "../../../Types/WoWAPI"
       ]
   },

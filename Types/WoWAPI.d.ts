@@ -369,6 +369,7 @@ declare function IsRightShiftKeyDown(this: void): boolean;
 declare function IsRightAltKeyDown(this: void): boolean;
 declare function IsRightControlKeyDown(this: void): boolean;
 
+declare function SendChatMessage(this: void, Message: string, ChatType?: string, Language?: string, Channel?: string): void;
 //#endregion
 
 //#region Item API

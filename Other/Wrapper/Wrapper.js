@@ -42,6 +42,8 @@ var Core;
 (function (Core) {
     let SavedAddonName;
     let Standalone = true;
+    let SavedVariables = false;
+    let SavedVariablesName = "";
     async function GetAddonProperties() {
         if (SavedAddonName == undefined) {
             const TocFilePromise = ReadFile("ReadToc", TocPath, "UTF-8");
@@ -58,6 +60,14 @@ var Core;
                     if (ThisLine.indexOf("Standalone=") != -1) {
                         const SplitLine = ThisLine.split('=');
                         Standalone = SplitLine[SplitLine.length - 1].toLowerCase() == "false" ? false : true;
+                    }
+                    if (ThisLine.indexOf("SavedVariables=") != -1) {
+                        const SplitLine = ThisLine.split('=');
+                        SavedVariables = SplitLine[SplitLine.length - 1].toLowerCase() == "false" ? false : true;
+                    }
+                    if (SavedVariables && ThisLine.indexOf("SavedVariablesName=") != -1) {
+                        const SplitLine = ThisLine.split('=');
+                        SavedVariablesName = SplitLine[SplitLine.length - 1];
                     }
                 }
             });
@@ -158,8 +168,20 @@ var Core;
             });
             // Toc File
             if (Standalone) {
-                console.log(GetNiceTime(), "Lua Toc Wrapper - Append", Date());
-                await AppendFile(TocFile, "## Title: " + SavedAddonName + "\n\n" + SavedAddonName + ".lua").then(() => {
+                console.log(GetNiceTime(), "Lua Toc Wrapper - Append Standalone", Date());
+                await AppendFile(TocFile, "## Title: " + SavedAddonName + "\n\n").then(() => {
+                    console.log(GetNiceTime(), "Lua Toc Wrapper - Finished", Date());
+                });
+            }
+            if (SavedVariables) {
+                console.log(GetNiceTime(), "Lua Toc Wrapper - Append SavedVariables", Date());
+                await AppendFile(TocFile, "## SavedVariables: " + SavedVariablesName + "\n\n").then(() => {
+                    console.log(GetNiceTime(), "Lua Toc Wrapper - Finished", Date());
+                });
+            }
+            if (Standalone) {
+                console.log(GetNiceTime(), "Lua Toc Wrapper - Append Standalone", Date());
+                await AppendFile(TocFile, SavedAddonName + ".lua").then(() => {
                     console.log(GetNiceTime(), "Lua Toc Wrapper - Finished", Date());
                 });
             }
@@ -178,7 +200,7 @@ var Core;
             const FileLines = FileContent.split(RegExp("[\r\n]"));
             for (let i = 0; i < FileLines.length; i++) {
                 const ThisLine = FileLines[i];
-                if (ThisLine != "" && ThisLine.indexOf("##") == -1 && ThisLine.indexOf("AddonName=") == -1 && ThisLine.indexOf("Standalone=") == -1) {
+                if (ThisLine != "" && ThisLine.indexOf("##") == -1 && ThisLine.indexOf("AddonName=") == -1 && ThisLine.indexOf("Standalone=") == -1 && ThisLine.indexOf("SavedVariables=") == -1 && ThisLine.indexOf("SavedVariablesName=") == -1) {
                     PathsArray.push("Source/" + ThisLine);
                 }
             }

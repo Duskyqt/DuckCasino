@@ -5,7 +5,6 @@
       "strict": true,
       "types": [
         "./Types/Custom",
-        "./Types/LuaBox",
         "./Types/WoWAPI"
       ],
       "outDir": "./Other/Outputs/Lua"

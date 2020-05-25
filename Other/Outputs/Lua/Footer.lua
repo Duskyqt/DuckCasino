@@ -4,7 +4,7 @@ end
 
 local function TryLoading()
     C_Timer.After(1, function () 
-        if setfenv ~= nil and __LB__ ~= nil then
+        if setfenv ~= nil then
             Load()
         else
             TryLoading()
